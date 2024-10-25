@@ -36,6 +36,16 @@
                 {{$post->konten}}
             </p>
         </article>
+        <h1>Komentar</h1>
+
+        <small class="text-muted">{{ $total_comments }} Komentar</small>
+        @foreach($comments as $comment)
+            <div class="card mb-3">
+                <div class="card-body">
+                    <p>{{ $comment->comment }}</p>
+                </div>
+            </div>
+        @endforeach
     </div>
 </body>
 </html>

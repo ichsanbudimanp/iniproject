@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use PhpParser\Node\Expr\New_;
+use App\Models\Post;
 
 class PostController extends Controller
 {
@@ -14,7 +15,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = DB::table('posts')->get();
+        $posts = Post::orderBy('created_at', 'desc')->Active()->get();
         
         $view_post = [
             'posts' => $posts
@@ -40,7 +41,7 @@ class PostController extends Controller
         $deskripsi = $request->input('deskripsi');
         $konten = $request->input('konten');
 
-        DB::table('posts')->insert([
+        Post::create([
             'judul' => $judul,
             'deskripsi' => $deskripsi,
             'konten' => $konten,
@@ -56,13 +57,14 @@ class PostController extends Controller
      */
     public function show(string $id)
     {
-        $posts = DB::table('posts')
-        ->where('id', $id)
-        ->get()
-        ->first();
+        $posts = Post::where('id', $id)->get()->first();
+        $comments = $posts->comments()->get()->all();
+        $total_comments = $posts->total_comments();
 
         $view_post = [
-            'post' => $posts
+            'post' => $posts,
+            'comments' => $comments,
+            'total_comments' => $total_comments
         ];
 
         return view('posts.detail', $view_post);
@@ -73,8 +75,7 @@ class PostController extends Controller
      */
     public function edit(string $id)
     {
-        $posts = DB::table('posts')
-        ->where('id', $id)
+        $posts = Post::where('id', $id)
         ->get()
         ->first();
 
@@ -93,8 +94,7 @@ class PostController extends Controller
         $deskripsi = $request->input('deskripsi');
         $konten = $request->input('konten');
 
-        DB::table('posts')
-        ->where('id', $id)
+        Post::where('id', $id)
         ->update([
             'judul' => $judul,
             'deskripsi' => $deskripsi,
@@ -110,8 +110,7 @@ class PostController extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table('posts')
-        ->where('id', $id)
+        Post::where('id', $id)
         ->delete();
 
         return redirect('posts');
